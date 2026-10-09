@@ -155,6 +155,7 @@ function restoreLogo() {
 }
 
 /* 5. DOWNLOAD COUNTER (Python backend on PythonAnywhere) */
+/* 5. DOWNLOAD COUNTER (Python backend on PythonAnywhere) */
 const COUNTER_API = "https://tahrim.pythonanywhere.com";
 const COUNT_CACHE_KEY = "tracad_last_count";
 
@@ -192,10 +193,9 @@ async function loadDownloadCount() {
   showCachedCount();
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      // FIX 1: Trailing slash + headers to prevent PythonAnywhere CORS/redirect issues
+      // Kept the trailing slash to prevent Django 301 redirects
       const res = await fetch(`${COUNTER_API}/api/downloads/`, { 
-        cache: "no-store",
-        headers: { "Accept": "application/json" }
+        cache: "no-store" 
       });
       if (!res.ok) throw new Error("HTTP " + res.status);
       const total = readTotal(await res.json());
@@ -212,13 +212,9 @@ async function loadDownloadCount() {
 async function recordDownload() {
   if (!counterEnabled()) return;
   try {
-    // FIX 2: Trailing slash + strict content-type headers for POST
+    // Removed headers to make this a "Simple Request" and bypass CORS preflight
     const res = await fetch(`${COUNTER_API}/api/downloads/`, { 
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-      }
+      method: "POST" 
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
     showCount(readTotal(await res.json()));
@@ -226,6 +222,10 @@ async function recordDownload() {
     console.warn("Counter update failed (check backend + CORS):", e);
   }
 }
+
+
+
+
 
 /* 6. PDF PIPELINE */
 const originalTitle = document.title;
