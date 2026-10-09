@@ -193,8 +193,8 @@ async function loadDownloadCount() {
   showCachedCount();
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      // Kept the trailing slash to prevent Django 301 redirects
-      const res = await fetch(`${COUNTER_API}/api/downloads/`, { 
+      // Must match @app.route("/api/downloads") exactly without a trailing slash
+      const res = await fetch(`${COUNTER_API}/api/downloads`, { 
         cache: "no-store" 
       });
       if (!res.ok) throw new Error("HTTP " + res.status);
@@ -212,8 +212,8 @@ async function loadDownloadCount() {
 async function recordDownload() {
   if (!counterEnabled()) return;
   try {
-    // Removed headers to make this a "Simple Request" and bypass CORS preflight
-    const res = await fetch(`${COUNTER_API}/api/downloads/`, { 
+    // Must match @app.route("/api/downloads") exactly without a trailing slash
+    const res = await fetch(`${COUNTER_API}/api/downloads`, { 
       method: "POST" 
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
@@ -222,7 +222,6 @@ async function recordDownload() {
     console.warn("Counter update failed (check backend + CORS):", e);
   }
 }
-
 
 
 
