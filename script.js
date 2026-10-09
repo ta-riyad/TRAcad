@@ -11,7 +11,7 @@ console.log("TRAcad script.js v5 loaded");
 const $ = (id) => document.getElementById(id);
 
 function getValue(id) {
-  return $(id) ? $(id).value.trim() : "";
+  return $(id) ?$(id).value.trim() : "";
 }
 
 function safeText(value, fallback) {
@@ -133,7 +133,7 @@ function loadLocal() {
     const data = JSON.parse(localStorage.getItem(FORM_KEY));
     if (!data) return false;
     fields.forEach((id) => {
-      if ($(id) && data[id] !== undefined) $(id).value = data[id];
+      if ($(id) && data[id] !== undefined)$(id).value = data[id];
     });
     return true;
   } catch {
@@ -192,7 +192,11 @@ async function loadDownloadCount() {
   showCachedCount();
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const res = await fetch(`${COUNTER_API}/api/downloads`, { cache: "no-store" });
+      // FIX 1: Trailing slash + headers to prevent PythonAnywhere CORS/redirect issues
+      const res = await fetch(`${COUNTER_API}/api/downloads/`, { 
+        cache: "no-store",
+        headers: { "Accept": "application/json" }
+      });
       if (!res.ok) throw new Error("HTTP " + res.status);
       const total = readTotal(await res.json());
       if (!Number.isFinite(total)) throw new Error("Response has no total/count field");
@@ -208,7 +212,14 @@ async function loadDownloadCount() {
 async function recordDownload() {
   if (!counterEnabled()) return;
   try {
-    const res = await fetch(`${COUNTER_API}/api/downloads`, { method: "POST" });
+    // FIX 2: Trailing slash + strict content-type headers for POST
+    const res = await fetch(`${COUNTER_API}/api/downloads/`, { 
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      }
+    });
     if (!res.ok) throw new Error("HTTP " + res.status);
     showCount(readTotal(await res.json()));
   } catch (e) {
