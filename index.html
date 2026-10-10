@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Free academic assignment cover generator - A4 single-page PDF export">
+  <title>TRAcad Studio | By Md Tahrim Kobir Riyad</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css?v=3">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="topbar">
+    <a href="#" class="brand">
+      <img src="tracad.png" alt="TRAcad Logo" class="topbar-logo" />
+      <div class="brand-info">
+        <strong>TRAcad</strong>
+        <span class="brand-subtext">Academic Solutions</span>
+      </div>
+    </a>
+    <div class="topbar-right">
+      <span class="tracad-badge">Pray For Us</span>
+    </div>
+  </div>
+
+  <main id="mainAppShell" class="app-shell">
+
+    <!-- HERO -->
+    <section id="heroSection" class="hero">
+      <div class="hero-content">
+        <span class="eyebrow">✦ Free academic tool</span>
+        <h1>Generate Print-Ready <em>Assignment Cover</em> Pages</h1>
+        <p class="hero-text">Customize student, course, and department details with exact layout and typography specifications.</p>
+        <div class="counter-pill"><span class="dot"></span><strong class="js-download-count">—</strong> Covers generated so far</div>
+      </div>
+    </section>
+
+    <!-- WORKSPACE: form (left) + preview (right on desktop, below on mobile) -->
+    <div id="workspaceContainer" class="workspace">
+
+      <!-- LEFT: FORM -->
+      <aside id="formPanel" class="panel form-panel">
+        <form id="coverForm">
+
+          <!-- Course & Title -->
+          <div id="secCourseInfo" class="form-section">
+            <div class="section-header">
+              <div class="section-label">Course & Title</div>
+              <button id="resetBtn" class="secondary-btn" type="button">Reset to Default</button>
+            </div>
+
+            <div class="field-group">
+              <label for="title">Assignment Title</label>
+              <textarea id="title" rows="2" placeholder="e.g. Effect of Nitrogen Management on Growth, Yield, and Nutrient Use Efficiency of Rice"></textarea>
+            </div>
+            <div class="field-group">
+              <label for="courseName">Course Name</label>
+              <input id="courseName" type="text" placeholder="e.g. Seed Science (Theory)">
+            </div>
+            <div class="grid-2">
+              <div class="field-group">
+                <label for="courseCode">Course Code</label>
+                <input id="courseCode" type="text" placeholder="e.g. AGRHA 201(T)">
+              </div>
+              <div class="field-group">
+                <label for="documentType">Document Badge</label>
+                <select id="documentType">
+                  <option selected>Assignment</option>
+                  <option>Practical Notebook</option>
+                  <option>Lab Report</option>
+                  <option>Term Paper</option>
+                  <option>Project Report</option>
+                  <option>Class Report</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Teacher -->
+          <div id="secTeacherInfo" class="form-section">
+            <div class="section-label">Assigned By (Teacher)</div>
+            <div class="field-group">
+              <label for="teacherName">Course Teacher Name</label>
+              <input id="teacherName" type="text" placeholder="e.g. Dr. Nazrul Islam">
+            </div>
+            <div class="field-group">
+              <label for="teacherDesignation">Designation</label>
+              <select id="teacherDesignation">
+                <option value="" selected>Select designation</option>
+                <option>Professor</option>
+                <option>Asst. Professor</option>
+                <option>Assoc. Professor</option>
+                <option>Lecturer</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="department">Department</label>
+              <input id="department" type="text" placeholder="e.g. Department of Agronomy and Haor Agriculture">
+            </div>
+            <div class="field-group">
+              <label for="teacherUniversity">University</label>
+              <input id="teacherUniversity" type="text" placeholder="e.g. Sylhet Agricultural University, Sylhet">
+            </div>
+          </div>
+
+          <!-- Student -->
+          <div id="secStudentInfo" class="form-section">
+            <div class="section-label">Submitted By (Student)</div>
+            <div class="field-group">
+              <label for="studentName">Student Name</label>
+              <input id="studentName" type="text" placeholder="e.g. Tanvir Ahmed">
+            </div>
+            <div class="grid-2">
+              <div class="field-group">
+                <label for="studentId">Student ID</label>
+                <input id="studentId" type="text" placeholder="e.g. 0000000">
+              </div>
+              <div class="field-group">
+                <label for="reg">Registration No.</label>
+                <input id="reg" type="text" placeholder="e.g. 0000">
+              </div>
+            </div>
+            <div class="grid-3">
+              <div class="field-group">
+                <label for="level">Level</label>
+                <input id="level" type="text" placeholder="e.g. 02">
+              </div>
+              <div class="field-group">
+                <label for="semester">Semester</label>
+                <input id="semester" type="text" placeholder="e.g. 01">
+              </div>
+              <div class="field-group">
+                <label for="group">Group</label>
+                <input id="group" type="text" placeholder="e.g. A">
+              </div>
+            </div>
+            <div class="field-group">
+              <label for="session">Session</label>
+              <input id="session" type="text" placeholder="e.g. 2023-24">
+            </div>
+          </div>
+
+          <!-- Institution -->
+          <div id="secInstitutionInfo" class="form-section">
+            <div class="section-label">Institutional Settings</div>
+            <div class="field-group">
+              <label for="institution">University Name</label>
+              <input id="institution" type="text" placeholder="e.g. Sylhet Agricultural University, Sylhet">
+            </div>
+            <div class="field-group">
+              <label>Custom University Logo <span class="optional">(Optional)</span></label>
+              <label class="upload-box" for="logoInput">
+                <span class="upload-icon">📁</span>
+                <span id="logoLabel">Upload High-Res Logo</span>
+                <input id="logoInput" type="file" accept="image/png,image/jpeg,image/webp">
+              </label>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div id="formActions" class="actions">
+            <button id="downloadBtn" class="primary-btn" type="button">Download PDF ↓</button>
+            <button id="feedbackBtn" class="secondary-btn" type="button" onclick="window.location.href='mailto:tahrim.k.riyad@gmail.com?subject=Cover Page Generator Feedback / Suggestion'">Feedback / Suggestion</button>
+          </div>
+
+        </form>
+      </aside>
+
+      <!-- RIGHT: LIVE PREVIEW -->
+      <section id="previewPanel" class="panel preview-panel">
+        <div id="previewHeading" class="panel-heading">
+          <div>
+            <span class="step">02</span>
+            <h2>Live Canvas Preview</h2>
+          </div>
+          <span class="a4-label">A4 Sheet • 1:1 Scale</span>
+        </div>
+
+        <div id="previewStage" class="preview-stage">
+          <!-- A4 COVER -->
+          <div id="cover" class="cover sau">
+
+            <div id="docFrame" class="sau-frame">
+              <div class="corner-box tl"></div>
+              <div class="corner-box tr"></div>
+              <div class="corner-box bl"></div>
+              <div class="corner-box br"></div>
+            </div>
+
+            <div id="docInnerContent" class="cover-inner">
+
+              <div id="docHeader" class="sau-header">
+                <img id="previewLogo" class="preview-logo" src="favicon1.png" alt="Crest Logo">
+              </div>
+
+              <div id="docBadge" class="sau-doc-badge">
+                <span id="previewType">Assignment</span>
+              </div>
+
+              <div id="docOrnaments" class="sau-ornaments">
+                <svg width="60" height="26" viewBox="0 0 120 38" fill="none" style="transform: scaleX(-1);">
+                  <path d="M10 22 C 30 6, 42 32, 60 18 C 78 32, 90 6, 110 22" stroke="#719db2" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M30 18 C 38 12, 44 22, 52 17" stroke="#719db2" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M68 17 C 76 22, 82 12, 90 18" stroke="#719db2" stroke-width="1.8" stroke-linecap="round"/>
+                  <circle cx="60" cy="18" r="3" fill="#719db2"/>
+                </svg>
+                <svg width="60" height="26" viewBox="0 0 120 38" fill="none">
+                  <path d="M10 22 C 30 6, 42 32, 60 18 C 78 32, 90 6, 110 22" stroke="#719db2" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M30 18 C 38 12, 44 22, 52 17" stroke="#719db2" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M68 17 C 76 22, 82 12, 90 18" stroke="#719db2" stroke-width="1.8" stroke-linecap="round"/>
+                  <circle cx="60" cy="18" r="3" fill="#719db2"/>
+                </svg>
+              </div>
+
+              <div id="docTitleWrap" class="sau-title-wrap">
+                <h3 id="previewTitle" class="preview-title">Effect of Nitrogen Management on Growth, Yield, and Nutrient Use Efficiency of Rice</h3>
+              </div>
+
+              <div id="docCourseBox" class="sau-course-box">
+                <div>Course Name: <span id="previewCourseName">Seed Science (theory)</span></div>
+                <div>Course Code: <span id="previewCourseCode">AGRHA 201(T)</span></div>
+              </div>
+
+              <div id="docSubmissionGrid" class="sau-submission-wrapper">
+                <div class="grid-header">
+                  <div class="col-left">Assigned By</div>
+                  <div class="col-right">Submitted By</div>
+                </div>
+
+                <div class="grid-body">
+                  <div class="col-left">
+                    <div id="previewTeacher" class="bold-text">Dr. Nazrul Islam</div>
+                    <div id="previewDesignation" class="bold-text">Professor</div>
+                    <div id="previewDepartment2" class="bold-text">Department of Agronomy and Haor Agriculture</div>
+                    <div class="sau-spacer"></div>
+                    <div id="previewTeacherUniversity" class="bold-text">Sylhet Agricultural University, Sylhet</div>
+                  </div>
+
+                  <div class="col-right">
+                    <div id="previewStudent" class="bold-text">Tanvir Ahmed</div>
+                    <div class="row-text"><span class="lbl">ID:</span> <span id="previewId">0000000</span></div>
+                    <div class="row-text"><span class="lbl">Reg:</span> <span id="previewReg">0000</span></div>
+                    <div class="row-text"><span class="lbl">Level:</span> <span id="previewLevel">02</span></div>
+                    <div class="row-text"><span class="lbl">Semester:</span> <span id="previewSemester">01</span></div>
+                    <div class="row-text"><span class="lbl">Group:</span> <span id="previewGroup">A</span></div>
+                    <div class="row-text"><span class="lbl">Session:</span> <span id="previewSession">2023-24</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="docFooterBrand" class="sau-footer-brand">SYLHET AGRICULTURAL UNIVERSITY, SYLHET</div>
+            </div>
+
+            <div id="docWatermark" class="sau-watermark" aria-hidden="true">
+              <img id="watermarkLogo" src="favicon1.png" alt="Watermark Crest">
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer id="mainFooter">
+    <div class="footer-content">
+      <span id="downloadCounter">Total PDFs downloaded: <strong class="js-download-count">—</strong></span>
+
+      <div class="footer-right">
+        <span>Designed & Developed by <strong>Md Tahrim Kobir Riyad</strong></span>
+        <nav class="footer-links" aria-label="Developer links">
+          <a href="https://tahrimkobir.github.io" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" class="ico-stroke" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg>
+            Portfolio
+          </a>
+          <a href="https://www.linkedin.com/in/mdtahrimkobirriyad/" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" class="ico-fill" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+            LinkedIn
+          </a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js?v=3"></script>
+</body>
+</html>
