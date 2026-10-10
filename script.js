@@ -246,9 +246,10 @@ function fitPreview() {
 }
 
 /* File name: "<course code> Assign by TRAcad.pdf"  e.g. "AGRHA 201(T) Assign by TRAcad.pdf" */
+/* File name: "<course code> Assign C By TRAcad.pdf" */
 function buildPdfName() {
   const code = getValue("courseCode");
-  const name = `${code ? code + " " : ""}Assign by TRAcad`;
+  const name = `${code ? code + " " : ""}Assign C By TRAcad`;
   return name.replace(/[\\/:*?"<>|]+/g, "").replace(/\s+/g, " ").trim();
 }
 
