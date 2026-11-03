@@ -389,21 +389,38 @@ async function incrementDownloadCount() {
   }
 }
 
+
+
+
+
+
+
+
+
 async function handleDownloadPDF() {
   const btn = $("downloadBtn");
   const originalText = btn.textContent;
-  btn.textContent = "Generating PDF...";
+  btn.textContent = "Generating High-Res PDF...";
   btn.disabled = true;
 
   try {
     const element = $("cover"); 
-    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    
+    // Increase scale to 4 or 5 for retina/DOCX-like sharpness
+    const canvas = await html2canvas(element, { 
+      scale: 4, 
+      useCORS: true,
+      logging: false 
+    });
     
     const { jsPDF } = window.jspdf; 
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     
-    const imgData = canvas.toDataURL("image/jpeg", 1.0);
-    pdf.addImage(imgData, "JPEG", 0, 0, 210, 297); 
+    // Switch to PNG for lossless text clarity (no JPEG artifacts)
+    const imgData = canvas.toDataURL("image/png");
+    
+    // A4 dimensions: 210 x 297 mm
+    pdf.addImage(imgData, "PNG", 0, 0, 210, 297); 
     
     const studentId = getValue("studentId") || "Student";
     pdf.save(`Assignment_Cover_${studentId}.pdf`);
