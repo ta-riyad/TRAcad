@@ -5,7 +5,7 @@
  * ==========================================
  */
 
-console.log("TRAcad script.js v8 loaded");
+console.log("TRAcad script.js v9 loaded");
 
 /* 1. UTILITIES */
 const $ = (id) => document.getElementById(id);
@@ -28,6 +28,7 @@ const defaults = {
   documentType: "Assignment",
   institution: "",
   department: "",
+  courseSelect: "",
   courseName: "",
   courseCode: "",
   title: "",
@@ -383,6 +384,31 @@ function bindEvents() {
   document.addEventListener("input", onFieldEvent);
   document.addEventListener("change", onFieldEvent);
 
+  // Auto-fill Course Selection Handler
+  const courseSelect = $("courseSelect");
+  if (courseSelect) {
+    courseSelect.addEventListener("change", (e) => {
+      const val = e.target.value;
+      if (!val) return;
+
+      if (val === "manual") {
+        if ($("courseName")) $("courseName").value = "";
+        if ($("courseCode")) $("courseCode").value = "";
+        updatePreview();
+        saveLocal();
+        return;
+      }
+
+      const [name, code] = val.split("|");
+      if ($("courseName")) $("courseName").value = name || "";
+      if ($("courseCode")) $("courseCode").value = code || "";
+      
+      updatePreview();
+      saveLocal();
+    });
+  }
+
+  // Auto-fill Teacher selection handler (automatically sets SAU university info)
   const teacherSelect = $("teacherSelect");
   if (teacherSelect) {
     teacherSelect.addEventListener("change", (e) => {
@@ -426,6 +452,7 @@ function bindEvents() {
     });
   }
 
+  // Logo upload
   if ($("logoInput")) {
     $("logoInput").addEventListener("change", (event) => {
       const file = event.target.files[0];
@@ -447,6 +474,7 @@ function bindEvents() {
     });
   }
 
+  // Reset
   if ($("resetBtn")) {
     $("resetBtn").addEventListener("click", () => {
       if (!confirm("Reset all fields to default values?")) return;
