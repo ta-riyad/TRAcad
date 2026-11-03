@@ -400,28 +400,63 @@ async function incrementDownloadCount() {
 async function handleDownloadPDF() {
   const btn = $("downloadBtn");
   const originalText = btn.textContent;
-  btn.textContent = "Generating High-Res PDF...";
+  btn.textContent = "Generating Vector PDF...";
   btn.disabled = true;
 
   try {
-    const element = $("cover"); 
-    
-    // Increase scale to 4 or 5 for retina/DOCX-like sharpness
-    const canvas = await html2canvas(element, { 
-      scale: 4, 
-      useCORS: true,
-      logging: false 
-    });
-    
-    const { jsPDF } = window.jspdf; 
+    const { jsPDF } = window.jspdf;
+    // Create a pure vector PDF
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     
-    // Switch to PNG for lossless text clarity (no JPEG artifacts)
-    const imgData = canvas.toDataURL("image/png");
+    // Set up fonts and standard positioning
+    pdf.setFont("helvetica");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 20;
     
-    // A4 dimensions: 210 x 297 mm
-    pdf.addImage(imgData, "PNG", 0, 0, 210, 297); 
-    
+    // 1. Draw Border
+    pdf.setLineWidth(1);
+    pdf.rect(margin, margin, pageWidth - (margin * 2), 297 - (margin * 2));
+
+    // 2. Add Institution Name (Centered, Bold)
+    pdf.setFontSize(22);
+    pdf.setFont("helvetica", "bold");
+    const institution = getValue("institution") || "University Name";
+    pdf.text(institution.toUpperCase(), pageWidth / 2, 40, { align: "center" });
+
+    // 3. Add Document Type
+    pdf.setFontSize(16);
+    pdf.setFont("helvetica", "normal");
+    const docType = getValue("documentType") || "Assignment";
+    pdf.text(docType.toUpperCase(), pageWidth / 2, 55, { align: "center" });
+
+    // 4. Add Course Details
+    pdf.setFontSize(14);
+    pdf.text(`Course Title: ${getValue("courseName") || "N/A"}`, margin + 10, 80);
+    pdf.text(`Course Code: ${getValue("courseCode") || "N/A"}`, margin + 10, 90);
+    pdf.text(`Topic: ${getValue("title") || "N/A"}`, margin + 10, 100);
+
+    // 5. Add Submitted To (Teacher)
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Submitted To:", margin + 10, 130);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Name: ${getValue("teacherName") || "N/A"}`, margin + 10, 140);
+    pdf.text(`Designation: ${getValue("teacherDesignation") || "N/A"}`, margin + 10, 150);
+    pdf.text(`Department: ${getValue("teacherDepartment") || getValue("department") || "N/A"}`, margin + 10, 160);
+
+    // 6. Add Submitted By (Student)
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Submitted By:", margin + 10, 190);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Name: ${getValue("studentName") || "N/A"}`, margin + 10, 200);
+    pdf.text(`ID: ${getValue("studentId") || "N/A"}`, margin + 10, 210);
+    pdf.text(`Level/Semester: ${getValue("level") || "-"} / ${getValue("semester") || "-"}`, margin + 10, 220);
+    pdf.text(`Session: ${getValue("session") || "N/A"}`, margin + 10, 230);
+
+    // 7. Add Date
+    const today = new Date().toLocaleDateString();
+    pdf.text(`Date of Submission: ${today}`, margin + 10, 260);
+
+    // Save the vector PDF and increment API
     const studentId = getValue("studentId") || "Student";
     pdf.save(`Assignment_Cover_${studentId}.pdf`);
     
