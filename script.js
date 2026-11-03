@@ -3,14 +3,14 @@ import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopu
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 /* ===== 1. FIREBASE CONFIGURATION ===== */
-// TODO: Replace with your actual Firebase Console Credentials
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAmfJ53FL0Pam3r2Rt-7s_QaxvPi5G-_BY",
+  authDomain: "tracad-studio.firebaseapp.com",
+  projectId: "tracad-studio",
+  storageBucket: "tracad-studio.firebasestorage.app",
+  messagingSenderId: "720193500182",
+  appId: "1:720193500182:web:ef939d75af42847f38b137",
+  measurementId: "G-LR0Q2PF7KD"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -162,14 +162,13 @@ function autoFillStudentData(userData) {
 
 async function fetchStudentProfile(user) {
   try {
-    // Search in Firestore by User Email or UID
     const docRef = doc(db, "students", user.email);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
       autoFillStudentData(docSnap.data());
     } else {
-      console.warn("No student profile record found in database.");
+      console.warn("No student profile record found in database for email:", user.email);
     }
   } catch (err) {
     console.error("Error fetching student profile:", err);
@@ -183,40 +182,48 @@ function initAuth() {
   const loginForm = $("loginForm");
   const googleBtn = $("googleAuthBtn");
 
-  authBtn.addEventListener("click", () => {
-    if (auth.currentUser) {
-      if (confirm("Do you want to log out?")) signOut(auth);
-    } else {
-      modal.classList.remove("hidden");
-    }
-  });
+  if (authBtn) {
+    authBtn.addEventListener("click", () => {
+      if (auth.currentUser) {
+        if (confirm("Do you want to log out?")) signOut(auth);
+      } else {
+        if (modal) modal.classList.remove("hidden");
+      }
+    });
+  }
 
-  closeModalBtn.addEventListener("click", () => modal.classList.add("hidden"));
+  if (closeModalBtn && modal) {
+    closeModalBtn.addEventListener("click", () => modal.classList.add("hidden"));
+  }
 
   // Email & Password Auth
-  loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = $("loginEmail").value.trim();
-    const password = $("loginPassword").value;
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = $("loginEmail").value.trim();
+      const password = $("loginPassword").value;
 
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      modal.classList.add("hidden");
-    } catch (err) {
-      alert("Login failed: " + err.message);
-    }
-  });
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        if (modal) modal.classList.add("hidden");
+      } catch (err) {
+        alert("Login failed: " + err.message);
+      }
+    });
+  }
 
   // Google Provider Auth
-  googleBtn.addEventListener("click", async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-      modal.classList.add("hidden");
-    } catch (err) {
-      alert("Google Sign-In failed: " + err.message);
-    }
-  });
+  if (googleBtn) {
+    googleBtn.addEventListener("click", async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        await signInWithPopup(auth, provider);
+        if (modal) modal.classList.add("hidden");
+      } catch (err) {
+        alert("Google Sign-In failed: " + err.message);
+      }
+    });
+  }
 
   // Auth State Listener
   onAuthStateChanged(auth, (user) => {
@@ -240,6 +247,7 @@ function init() {
   } else {
     updatePreview();
   }
+  console.log("✓ TRAcad Studio with Firebase Auth initialized");
 }
 
 if (document.readyState === "loading") {
