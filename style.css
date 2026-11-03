@@ -418,7 +418,7 @@ footer {
 .cover.sau .bold-text { font-weight: 600; color: #111; }
 .cover.sau .row-text { display: flex; gap: 8px; margin-bottom: 5px; }
 .cover.sau .row-text .lbl { font-weight: 600; color: #333; }
-.cover.sau .sau-spacer { height: 22px; }
+.cover.sau .sau-spacer { height: 6px; }
 
 /* Footer brand */
 .cover.sau .sau-footer-brand {
