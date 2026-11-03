@@ -170,7 +170,7 @@ button { cursor: pointer; }
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
 
-/* ===== WORKSPACE: mobile = stacked, desktop = form left / preview right ===== */
+/* ===== WORKSPACE ===== */
 .workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -301,7 +301,6 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); }
   background: var(--preview-stage-bg);
 }
 .preview-stage #cover { box-shadow: 0 10px 30px rgba(0,0,0,.9), 0 0 40px -10px rgba(217,27,36,.3); }
-/* cover scales to fit its box; --fit is set by fitPreview() in script.js */
 @media screen { .preview-stage #cover { zoom: var(--fit, 1); } }
 
 /* ===== FOOTER ===== */
@@ -336,7 +335,7 @@ footer {
 .ico-stroke { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .ico-fill { fill: currentColor; }
 
-/* ===== RESPONSIVE (screen) ===== */
+/* ===== RESPONSIVE ===== */
 @media screen and (max-width: 700px) { .hero { padding: 48px 0 28px; } }
 @media screen and (max-width: 640px) {
   .form-panel, .preview-panel { padding: 18px; }
@@ -347,7 +346,7 @@ footer {
 }
 
 /* ========================================================= */
-/* COVER PAGE (A4)                                           */
+/* COVER PAGE (A4) - ALWAYS PRINT-READY WHITE                */
 /* ========================================================= */
 @page { size: A4 portrait; margin: 0; }
 
