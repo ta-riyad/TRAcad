@@ -141,9 +141,8 @@ function autoFillStudentData(profile) {
 }
 
 /* ===== 6. AUTHENTICATION & PROFILE SYSTEM ===== */
-let currentStudentProfile = null;
-
 function showView(viewId) {
+  if (!$("signupView") || !$("loginView") || !$("profileView") || !$("authModal")) return;
   $("signupView").classList.add("hidden");
   $("loginView").classList.add("hidden");
   $("profileView").classList.add("hidden");
@@ -152,7 +151,7 @@ function showView(viewId) {
 }
 
 function closeModal() {
-  $("authModal").classList.add("hidden");
+  if ($("authModal")) $("authModal").classList.add("hidden");
 }
 
 async function fetchAndApplyProfile(user) {
@@ -161,17 +160,16 @@ async function fetchAndApplyProfile(user) {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      currentStudentProfile = docSnap.data();
-      autoFillStudentData(currentStudentProfile);
+      const profileData = docSnap.data();
+      autoFillStudentData(profileData);
 
-      // Populate profile view inputs for editing
-      if ($("profileName")) $("profileName").value = currentStudentProfile.studentName || "";
-      if ($("profileStudentId")) $("profileStudentId").value = currentStudentProfile.studentId || "";
-      if ($("profileReg")) $("profileReg").value = currentStudentProfile.reg || "";
-      if ($("profileLevel")) $("profileLevel").value = currentStudentProfile.level || "";
-      if ($("profileSemester")) $("profileSemester").value = currentStudentProfile.semester || "";
-      if ($("profileGroup")) $("profileGroup").value = currentStudentProfile.group || "";
-      if ($("profileSession")) $("profileSession").value = currentStudentProfile.session || "";
+      if ($("profileName")) $("profileName").value = profileData.studentName || "";
+      if ($("profileStudentId")) $("profileStudentId").value = profileData.studentId || "";
+      if ($("profileReg")) $("profileReg").value = profileData.reg || "";
+      if ($("profileLevel")) $("profileLevel").value = profileData.level || "";
+      if ($("profileSemester")) $("profileSemester").value = profileData.semester || "";
+      if ($("profileGroup")) $("profileGroup").value = profileData.group || "";
+      if ($("profileSession")) $("profileSession").value = profileData.session || "";
     }
   } catch (err) {
     console.error("Error fetching profile:", err);
@@ -179,7 +177,8 @@ async function fetchAndApplyProfile(user) {
 }
 
 function initAuthSystem() {
-  // Navigation Event Listeners
+  if (!$("openLoginBtn")) return;
+
   $("openLoginBtn").addEventListener("click", () => showView("loginView"));
   $("openSignupBtn").addEventListener("click", () => showView("signupView"));
   $("openProfileBtn").addEventListener("click", () => showView("profileView"));
@@ -187,14 +186,12 @@ function initAuthSystem() {
   $("switchToSignup").addEventListener("click", (e) => { e.preventDefault(); showView("signupView"); });
   $("closeModalBtn").addEventListener("click", closeModal);
 
-  // Logout
   $("logoutBtn").addEventListener("click", () => {
     if (confirm("Are you sure you want to log out?")) {
       signOut(auth);
     }
   });
 
-  // SIGN UP FORM SUBMIT
   $("signupForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = $("signupEmail").value.trim();
@@ -213,11 +210,7 @@ function initAuthSystem() {
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      
-      // Save profile to Firestore under user.uid
-      await setDoc(doc(db, "students", user.uid), profileData);
-      
+      await setDoc(doc(db, "students", userCredential.user.uid), profileData);
       closeModal();
       alert("Account created and profile saved successfully!");
     } catch (err) {
@@ -225,7 +218,6 @@ function initAuthSystem() {
     }
   });
 
-  // LOGIN FORM SUBMIT
   $("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = $("loginEmail").value.trim();
@@ -239,7 +231,6 @@ function initAuthSystem() {
     }
   });
 
-  // UPDATE PROFILE FORM SUBMIT
   $("profileForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!auth.currentUser) return;
@@ -265,7 +256,6 @@ function initAuthSystem() {
     }
   });
 
-  // AUTH STATE LISTENER
   onAuthStateChanged(auth, (user) => {
     if (user) {
       $("loggedOutNav").classList.add("hidden");
@@ -290,7 +280,6 @@ function bindEvents() {
   document.addEventListener("input", onFieldEvent);
   document.addEventListener("change", onFieldEvent);
 
-  // Auto-fill Course Selection
   const courseSelect = $("courseSelect");
   if (courseSelect) {
     courseSelect.addEventListener("change", (e) => {
@@ -308,7 +297,6 @@ function bindEvents() {
     });
   }
 
-  // Auto-fill Teacher Selection
   const teacherSelect = $("teacherSelect");
   if (teacherSelect) {
     teacherSelect.addEventListener("change", (e) => {
@@ -322,7 +310,7 @@ function bindEvents() {
         if ($("teacherName")) $("teacherName").value = name || "";
         if ($("department")) $("department").value = dept || "";
         const sauName = "Sylhet Agricultural University, Sylhet";
-        if ($("teacherUniversity")) $("teacherUniversity").value = sauName;
+        if ($("teacherUniversity")) $("teacherUniversity","Sylhet Agricultural University, Sylhet").value = sauName;
         if ($("institution")) $("institution").value = sauName;
 
         const desgSelect = $("teacherDesignation");
@@ -340,7 +328,6 @@ function bindEvents() {
     });
   }
 
-  // Reset
   if ($("resetBtn")) {
     $("resetBtn").addEventListener("click", () => {
       if (!confirm("Reset all fields to default values?")) return;
