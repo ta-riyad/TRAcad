@@ -5,13 +5,13 @@
  * ==========================================
  */
 
-console.log("TRAcad script.js v5 loaded");
+console.log("TRAcad script.js v6 loaded");
 
 /* 1. UTILITIES */
 const $ = (id) => document.getElementById(id);
 
 function getValue(id) {
-  return $(id) ?$(id).value.trim() : "";
+  return $(id) ? $(id).value.trim() : "";
 }
 
 function safeText(value, fallback) {
@@ -38,6 +38,7 @@ const defaults = {
   semester: "",
   group: "",
   session: "",
+  teacherSelect: "",
   teacherName: "",
   teacherDesignation: "",
   teacherDepartment: "",
@@ -49,9 +50,7 @@ const FORM_KEY = "tracad_cover_form_v2";
 const OLD_FORM_KEY = "sau_assignment_cover_data";
 try { localStorage.removeItem(OLD_FORM_KEY); } catch (e) {}
 
-/* 3. INSTITUTION BINDING
-   Turns hard-coded "Sylhet ..." text inside the cover into a live-bound element
-   so it shows ONLY what the user types in the University field. */
+/* 3. INSTITUTION BINDING */
 function autoBindInstitution() {
   const cover = $("cover");
   if (!cover) return;
@@ -133,7 +132,7 @@ function loadLocal() {
     const data = JSON.parse(localStorage.getItem(FORM_KEY));
     if (!data) return false;
     fields.forEach((id) => {
-      if ($(id) && data[id] !== undefined)$(id).value = data[id];
+      if ($(id) && data[id] !== undefined) $(id).value = data[id];
     });
     return true;
   } catch {
@@ -154,8 +153,7 @@ function restoreLogo() {
   }
 }
 
-/* 5. DOWNLOAD COUNTER (Python backend on PythonAnywhere) */
-/* 5. DOWNLOAD COUNTER (Python backend on PythonAnywhere) */
+/* 5. DOWNLOAD COUNTER */
 const COUNTER_API = "https://tahrim.pythonanywhere.com";
 const COUNT_CACHE_KEY = "tracad_last_count";
 
@@ -193,17 +191,14 @@ async function loadDownloadCount() {
   showCachedCount();
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      // Must match @app.route("/api/downloads") exactly without a trailing slash
-      const res = await fetch(`${COUNTER_API}/api/downloads`, { 
-        cache: "no-store" 
-      });
+      const res = await fetch(`${COUNTER_API}/api/downloads`, { cache: "no-store" });
       if (!res.ok) throw new Error("HTTP " + res.status);
       const total = readTotal(await res.json());
       if (!Number.isFinite(total)) throw new Error("Response has no total/count field");
       showCount(total);
       return;
     } catch (e) {
-      console.warn("Counter load failed (check backend + CORS):", e);
+      console.warn("Counter load failed:", e);
       await new Promise((r) => setTimeout(r, 1500));
     }
   }
@@ -212,19 +207,13 @@ async function loadDownloadCount() {
 async function recordDownload() {
   if (!counterEnabled()) return;
   try {
-    // Must match @app.route("/api/downloads") exactly without a trailing slash
-    const res = await fetch(`${COUNTER_API}/api/downloads`, { 
-      method: "POST" 
-    });
+    const res = await fetch(`${COUNTER_API}/api/downloads`, { method: "POST" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     showCount(readTotal(await res.json()));
   } catch (e) {
-    console.warn("Counter update failed (check backend + CORS):", e);
+    console.warn("Counter update failed:", e);
   }
 }
-
-
-
 
 /* 6. PDF PIPELINE */
 const originalTitle = document.title;
@@ -233,8 +222,6 @@ let isExporting = false;
 const A4_W_PX = 794;   // 210mm @ 96dpi
 const A4_H_PX = 1123;  // 297mm @ 96dpi
 
-/* Scales the on-screen cover to fit its box (desktop right column / mobile full width).
-   Only affects the preview - the PDF is rendered from an unscaled clone. */
 function fitPreview() {
   const stage = $("previewStage");
   if (!stage) return;
@@ -245,8 +232,6 @@ function fitPreview() {
   stage.style.setProperty("--fit", scale.toFixed(3));
 }
 
-/* File name: "<course code> Assign by TRAcad.pdf"  e.g. "AGRHA 201(T) Assign by TRAcad.pdf" */
-/* File name: "<course code> Assign C By TRAcad.pdf" */
 function buildPdfName() {
   const code = getValue("courseCode");
   const name = `${code ? code + " " : ""}Assign C By TRAcad`;
@@ -369,6 +354,44 @@ function bindEvents() {
   document.addEventListener("input", onFieldEvent);
   document.addEventListener("change", onFieldEvent);
 
+  // Auto-fill Teacher selection handler
+  const teacherSelect = $("teacherSelect");
+  if (teacherSelect) {
+    teacherSelect.addEventListener("change", (e) => {
+      const val = e.target.value;
+      if (!val) return;
+
+      if (val === "manual") {
+        $("teacherName").value = "";
+        $("teacherDesignation").value = "";
+        $("department").value = "";
+        updatePreview();
+        saveLocal();
+        return;
+      }
+
+      const [name, designation, dept] = val.split("|");
+      if ($("teacherName")) $("teacherName").value = name || "";
+      if ($("department")) $("department").value = dept || "";
+
+      const desgSelect = $("teacherDesignation");
+      if (desgSelect) {
+        let matched = false;
+        for (let opt of desgSelect.options) {
+          if (opt.text.toLowerCase() === designation.toLowerCase()) {
+            desgSelect.value = opt.text;
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) desgSelect.value = designation;
+      }
+
+      updatePreview();
+      saveLocal();
+    });
+  }
+
   // Logo upload
   if ($("logoInput")) {
     $("logoInput").addEventListener("change", (event) => {
@@ -384,9 +407,7 @@ function bindEvents() {
         $("logoLabel").textContent = file.name;
         try {
           localStorage.setItem("sau_custom_logo", e.target.result);
-        } catch (err) {
-          /* too large to persist - still works this session */
-        }
+        } catch (err) {}
         updatePreview();
       };
       reader.readAsDataURL(file);
@@ -417,7 +438,6 @@ function bindEvents() {
     document.title = originalTitle;
   });
 
-  // Keep the live preview fitted to its column
   window.addEventListener("resize", fitPreview);
   if ("ResizeObserver" in window && $("previewStage")) {
     new ResizeObserver(fitPreview).observe($("previewStage"));
