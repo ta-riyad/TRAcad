@@ -279,6 +279,7 @@ function bindEvents() {
   };
   document.addEventListener("input", onFieldEvent);
   document.addEventListener("change", onFieldEvent);
+  window.addEventListener("resize", fitPreview);
 
   const courseSelect = $("courseSelect");
   if (courseSelect) {
@@ -310,7 +311,7 @@ function bindEvents() {
         if ($("teacherName")) $("teacherName").value = name || "";
         if ($("department")) $("department").value = dept || "";
         const sauName = "Sylhet Agricultural University, Sylhet";
-        if ($("teacherUniversity")) $("teacherUniversity","Sylhet Agricultural University, Sylhet").value = sauName;
+        if ($("teacherUniversity")) $("teacherUniversity").value = sauName;
         if ($("institution")) $("institution").value = sauName;
 
         const desgSelect = $("teacherDesignation");
@@ -338,31 +339,11 @@ function bindEvents() {
   }
 
   if ($("downloadBtn")) {
-    $("downloadBtn").addEventListener("click", handleDownloadPDF);
+    $("downloadBtn").addEventListener("click", downloadPdf);
   }
 }
 
-/* ===== 8. INITIALIZATION ===== */
-function init() {
-  initTheme();
-  bindEvents();
-  initAuthSystem();
-  fetchDownloadCount();
-  if (!loadLocal()) {
-    updatePreview();
-  } else {
-    updatePreview();
-  }
-  console.log("✓ TRAcad Studio Profile System Initialized");
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
-} else {
-  init();
-}
-
-/* ===== 9. PDF GENERATION & COUNTER ===== */
+/* ===== 8. API INTEGRATION ===== */
 const API_URL = "https://<YOUR_USERNAME>.pythonanywhere.com/api/downloads";
 
 async function fetchDownloadCount() {
@@ -377,7 +358,7 @@ async function fetchDownloadCount() {
   }
 }
 
-async function incrementDownloadCount() {
+async function recordDownload() {
   try {
     const response = await fetch(API_URL, { method: "POST" });
     if (response.ok) {
@@ -389,83 +370,153 @@ async function incrementDownloadCount() {
   }
 }
 
+/* ===== 9. PDF PIPELINE ===== */
+const originalTitle = document.title;
+let isExporting = false;
 
+const A4_W_PX = 794;   // 210mm @ 96dpi
+const A4_H_PX = 1123;  // 297mm @ 96dpi
 
+/* Scales the on-screen cover to fit its box (desktop right column / mobile full width).
+   Only affects the preview - the PDF is rendered from an unscaled clone. */
+function fitPreview() {
+  const stage = $("previewStage");
+  if (!stage) return;
+  const cs = getComputedStyle(stage);
+  const avail = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  if (avail <= 0) return;
+  const scale = Math.max(0.2, Math.min(1, avail / A4_W_PX));
+  stage.style.setProperty("--fit", scale.toFixed(3));
+}
 
+/* File name: "<course code> Assign C By TRAcad.pdf" */
+function buildPdfName() {
+  const code = getValue("courseCode");
+  const name = `${code ? code + " " : ""}Assign C By TRAcad`;
+  return name.replace(/[\\/:*?"<>|]+/g, "").replace(/\s+/g, " ").trim();
+}
 
+function waitForAssets(root) {
+  const tasks = [];
+  if (document.fonts && document.fonts.ready) tasks.push(document.fonts.ready);
+  root.querySelectorAll("img").forEach((img) => {
+    if (!img.complete) {
+      tasks.push(
+        new Promise((resolve) => {
+          img.addEventListener("load", resolve, { once: true });
+          img.addEventListener("error", resolve, { once: true });
+        })
+      );
+    }
+  });
+  const timeout = new Promise((resolve) => setTimeout(resolve, 3000));
+  return Promise.race([Promise.all(tasks), timeout]);
+}
 
+function makeExportClone() {
+  const stage = document.createElement("div");
+  stage.style.cssText =
+    `position:absolute;left:-10000px;top:0;width:${A4_W_PX}px;height:${A4_H_PX}px;` +
+    `overflow:hidden;background:#fff;pointer-events:none;`;
 
+  const clone = $("cover").cloneNode(true);
+  clone.removeAttribute("id");
+  clone.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  clone.style.cssText = `width:${A4_W_PX}px;height:${A4_H_PX}px;margin:0;transform:none;`;
 
+  stage.appendChild(clone);
+  document.body.appendChild(stage);
+  return { stage, clone };
+}
 
-async function handleDownloadPDF() {
+async function downloadPdf() {
+  if (isExporting) return;
+  isExporting = true;
+
   const btn = $("downloadBtn");
-  const originalText = btn.textContent;
-  btn.textContent = "Generating Vector PDF...";
+  const originalHtml = btn.innerHTML;
   btn.disabled = true;
+  btn.innerHTML = "Generating PDF…";
 
+  let stage = null;
   try {
+    if (!window.html2canvas || !window.jspdf) {
+      throw new Error("PDF libraries not loaded");
+    }
+
+    updatePreview();
+    const made = makeExportClone();
+    stage = made.stage;
+    await waitForAssets(stage);
+
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 900;
+
+    const canvas = await window.html2canvas(made.clone, {
+      scale: isMobile ? 3 : 4,
+      width: A4_W_PX,
+      height: A4_H_PX,
+      windowWidth: A4_W_PX,
+      windowHeight: A4_H_PX,
+      scrollX: 0,
+      scrollY: 0,
+      backgroundColor: "#ffffff",
+      useCORS: true,
+      logging: false
+    });
+
     const { jsPDF } = window.jspdf;
-    // Create a pure vector PDF
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    
-    // Set up fonts and standard positioning
-    pdf.setFont("helvetica");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const margin = 20;
-    
-    // 1. Draw Border
-    pdf.setLineWidth(1);
-    pdf.rect(margin, margin, pageWidth - (margin * 2), 297 - (margin * 2));
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
+    pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 210, 297, undefined, "FAST");
 
-    // 2. Add Institution Name (Centered, Bold)
-    pdf.setFontSize(22);
-    pdf.setFont("helvetica", "bold");
-    const institution = getValue("institution") || "University Name";
-    pdf.text(institution.toUpperCase(), pageWidth / 2, 40, { align: "center" });
+    const pdfName = buildPdfName();
+    pdf.setProperties({ title: pdfName });
+    const blobUrl = URL.createObjectURL(pdf.output("blob"));
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = pdfName + ".pdf";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
 
-    // 3. Add Document Type
-    pdf.setFontSize(16);
-    pdf.setFont("helvetica", "normal");
-    const docType = getValue("documentType") || "Assignment";
-    pdf.text(docType.toUpperCase(), pageWidth / 2, 55, { align: "center" });
-
-    // 4. Add Course Details
-    pdf.setFontSize(14);
-    pdf.text(`Course Title: ${getValue("courseName") || "N/A"}`, margin + 10, 80);
-    pdf.text(`Course Code: ${getValue("courseCode") || "N/A"}`, margin + 10, 90);
-    pdf.text(`Topic: ${getValue("title") || "N/A"}`, margin + 10, 100);
-
-    // 5. Add Submitted To (Teacher)
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Submitted To:", margin + 10, 130);
-    pdf.setFont("helvetica", "normal");
-    pdf.text(`Name: ${getValue("teacherName") || "N/A"}`, margin + 10, 140);
-    pdf.text(`Designation: ${getValue("teacherDesignation") || "N/A"}`, margin + 10, 150);
-    pdf.text(`Department: ${getValue("teacherDepartment") || getValue("department") || "N/A"}`, margin + 10, 160);
-
-    // 6. Add Submitted By (Student)
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Submitted By:", margin + 10, 190);
-    pdf.setFont("helvetica", "normal");
-    pdf.text(`Name: ${getValue("studentName") || "N/A"}`, margin + 10, 200);
-    pdf.text(`ID: ${getValue("studentId") || "N/A"}`, margin + 10, 210);
-    pdf.text(`Level/Semester: ${getValue("level") || "-"} / ${getValue("semester") || "-"}`, margin + 10, 220);
-    pdf.text(`Session: ${getValue("session") || "N/A"}`, margin + 10, 230);
-
-    // 7. Add Date
-    const today = new Date().toLocaleDateString();
-    pdf.text(`Date of Submission: ${today}`, margin + 10, 260);
-
-    // Save the vector PDF and increment API
-    const studentId = getValue("studentId") || "Student";
-    pdf.save(`Assignment_Cover_${studentId}.pdf`);
-    
-    await incrementDownloadCount();
-  } catch (err) {
-    console.error("Error generating PDF:", err);
-    alert("Failed to generate PDF. Please try again.");
+    recordDownload();
+  } catch (error) {
+    console.error("PDF download error:", error);
+    alert("Direct download failed. Opening print dialog instead - choose 'Save as PDF' and paper size A4.");
+    window.print();
   } finally {
-    btn.textContent = originalText;
+    if (stage) stage.remove();
     btn.disabled = false;
+    btn.innerHTML = originalHtml;
+    isExporting = false;
   }
+}
+
+async function printCover() {
+  updatePreview();
+  await waitForAssets(document);
+  document.title = buildPdfName();
+  window.print();
+  document.title = originalTitle;
+}
+
+/* ===== 10. INITIALIZATION ===== */
+function init() {
+  initTheme();
+  bindEvents();
+  initAuthSystem();
+  fetchDownloadCount();
+  if (!loadLocal()) {
+    updatePreview();
+  } else {
+    updatePreview();
+  }
+  fitPreview(); // Ensure layout scaling is applied on load
+  console.log("✓ TRAcad Studio Profile & PDF System Initialized");
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
 }
