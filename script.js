@@ -336,6 +336,10 @@ function bindEvents() {
       updatePreview();
     });
   }
+
+  if ($("downloadBtn")) {
+    $("downloadBtn").addEventListener("click", handleDownloadPDF);
+  }
 }
 
 /* ===== 8. INITIALIZATION ===== */
@@ -343,6 +347,7 @@ function init() {
   initTheme();
   bindEvents();
   initAuthSystem();
+  fetchDownloadCount();
   if (!loadLocal()) {
     updatePreview();
   } else {
@@ -355,4 +360,60 @@ if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
 } else {
   init();
+}
+
+/* ===== 9. PDF GENERATION & COUNTER ===== */
+const API_URL = "https://<YOUR_USERNAME>.pythonanywhere.com/api/downloads";
+
+async function fetchDownloadCount() {
+  try {
+    const response = await fetch(API_URL);
+    if (response.ok) {
+      const data = await response.json();
+      document.querySelectorAll(".js-download-count").forEach(el => el.textContent = data.total);
+    }
+  } catch (error) {
+    console.error("Failed to load download count", error);
+  }
+}
+
+async function incrementDownloadCount() {
+  try {
+    const response = await fetch(API_URL, { method: "POST" });
+    if (response.ok) {
+      const data = await response.json();
+      document.querySelectorAll(".js-download-count").forEach(el => el.textContent = data.total);
+    }
+  } catch (error) {
+    console.error("Failed to increment counter", error);
+  }
+}
+
+async function handleDownloadPDF() {
+  const btn = $("downloadBtn");
+  const originalText = btn.textContent;
+  btn.textContent = "Generating PDF...";
+  btn.disabled = true;
+
+  try {
+    const element = $("cover"); 
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    
+    const { jsPDF } = window.jspdf; 
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    
+    const imgData = canvas.toDataURL("image/jpeg", 1.0);
+    pdf.addImage(imgData, "JPEG", 0, 0, 210, 297); 
+    
+    const studentId = getValue("studentId") || "Student";
+    pdf.save(`Assignment_Cover_${studentId}.pdf`);
+    
+    await incrementDownloadCount();
+  } catch (err) {
+    console.error("Error generating PDF:", err);
+    alert("Failed to generate PDF. Please try again.");
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
 }
