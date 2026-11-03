@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -55,6 +55,33 @@
             <div class="section-header">
               <div class="section-label">Course & Title</div>
               <button id="resetBtn" class="secondary-btn" type="button">Reset to Default</button>
+            </div>
+
+            <!-- Course Suggestion Selector -->
+            <div class="field-group">
+              <label for="courseSelect">Select Course (Auto-fill)</label>
+              <select id="courseSelect">
+                <option value="" selected disabled>-- Select Course Suggestion or Type Manually Below --</option>
+                <option value="manual">✏️ Enter Manually</option>
+                
+                <optgroup label="THEORY COURSES (Effective Oct 2026)">
+                  <option value="Crop Husbandry|AGRHA 321">Crop Husbandry — AGRHA 321</option>
+                  <option value="Soil Survey & Classification|SS 321">Soil Survey & Classification — SS 321</option>
+                  <option value="Insect Ecology and Pest Management|ENT 321">Insect Ecology and Pest Management — ENT 321</option>
+                  <option value="Disease of Horticultural Crops & Seed Pathology|PPATH 321">Disease of Horticultural Crops & Seed Pathology — PPATH 321</option>
+                  <option value="Plant Physiology|CBOT 321">Plant Physiology — CBOT 321</option>
+                  <option value="Management of Environment|AFES 321">Management of Environment — AFES 321</option>
+                </optgroup>
+
+                <optgroup label="PRACTICAL COURSES (Effective Oct 2026)">
+                  <option value="Crop Husbandry|AGRHA 322">Crop Husbandry (Practical) — AGRHA 322</option>
+                  <option value="Soil Survey & Classification|SS 322">Soil Survey & Classification (Practical) — SS 322</option>
+                  <option value="Insect Ecology and Pest Management|ENT 322">Insect Ecology and Pest Management (Practical) — ENT 322</option>
+                  <option value="Disease of Horticultural Crops & Seed Pathology|PPATH 322">Disease of Horticultural Crops & Seed Pathology (Practical) — PPATH 322</option>
+                  <option value="Plant Physiology|CBOT 322">Plant Physiology (Practical) — CBOT 322</option>
+                  <option value="Management of Environment|AFES 322">Management of Environment (Practical) — AFES 322</option>
+                </optgroup>
+              </select>
             </div>
 
             <div class="field-group">
@@ -407,6 +434,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="script.js?v=4"></script>
+  <script src="script.js?v=5"></script>
 </body>
 </html>
