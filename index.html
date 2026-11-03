@@ -84,24 +84,139 @@
           <!-- Teacher -->
           <div id="secTeacherInfo" class="form-section">
             <div class="section-label">Assigned By (Teacher)</div>
+
+            <div class="field-group">
+              <label for="teacherSelect">Select Teacher (Auto-fill)</label>
+              <select id="teacherSelect">
+                <option value="" selected disabled>-- Select Teacher or Type Manually Below --</option>
+                <option value="manual">✏️ Enter Manually</option>
+                
+                <optgroup label="DEPARTMENT OF AGRONOMY AND HAOR AGRICULTURE">
+                  <option value="Dr. Md. Nazrul Islam|Professor|Department of Agronomy and Haor Agriculture">Dr. Md. Nazrul Islam - Professor</option>
+                  <option value="Dr. Mozammel Hoque|Professor|Department of Agronomy and Haor Agriculture">Dr. Mozammel Hoque - Professor</option>
+                  <option value="Dr. Md. Sazzad Hossain|Professor|Department of Agronomy and Haor Agriculture">Dr. Md. Sazzad Hossain - Professor</option>
+                  <option value="Md. Zillur Rahman|Associate Professor|Department of Agronomy and Haor Agriculture">Md. Zillur Rahman - Associate Professor</option>
+                  <option value="Mr. Palash Mandal|Assistant Professor|Department of Agronomy and Haor Agriculture">Mr. Palash Mandal - Assistant Professor</option>
+                  <option value="Akhi Paul Chowdhury|Assistant Professor|Department of Agronomy and Haor Agriculture">Akhi Paul Chowdhury - Assistant Professor</option>
+                  <option value="Dr. Md. Rafat-Al-Foysal|Assistant Professor|Department of Agronomy and Haor Agriculture">Dr. Md. Rafat-Al-Foysal - Assistant Professor</option>
+                </optgroup>
+
+                <optgroup label="DEPARTMENT OF SOIL SCIENCE">
+                  <option value="Dr. Md. Abul Kashem|Professor|Department of Soil Science">Dr. Md. Abul Kashem - Professor</option>
+                  <option value="Dr. Md. Abdul Aziz|Professor|Department of Soil Science">Dr. Md. Abdul Aziz - Professor</option>
+                  <option value="Dr. Md. Shahadat Hossain|Professor|Department of Soil Science">Dr. Md. Shahadat Hossain - Professor</option>
+                  <option value="Dr. Md. Mosharaf Hossain Sarker|Professor|Department of Soil Science">Dr. Md. Mosharaf Hossain Sarker - Professor</option>
+                  <option value="Dr. Rasendra Talukder|Associate Professor|Department of Soil Science">Dr. Rasendra Talukder - Associate Professor</option>
+                  <option value="Khadeza Yasmin|Assistant Professor|Department of Soil Science">Khadeza Yasmin - Assistant Professor</option>
+                </optgroup>
+
+                <optgroup label="DEPARTMENT OF CROP BOTANY AND TEA PRODUCTION TECHNOLOGY">
+                  <option value="Dr. A.F.M. Saiful Islam (PRL)|Professor|Department of Crop Botany and Tea Production Technology">Dr. A.F.M. Saiful Islam (PRL) - Professor</option>
+                  <option value="Dr. Sharifunnessa Moonmoon|Professor|Department of Crop Botany and Tea Production Technology">Dr. Sharifunnessa Moonmoon - Professor</option>
+                  <option value="Dr. Md. Masudur Rahman|Professor|Department of Crop Botany and Tea Production Technology">Dr. Md. Masudur Rahman - Professor</option>
+                  <option value="Dr. Rehenuma Tabassum|Professor|Department of Crop Botany and Tea Production Technology">Dr. Rehenuma Tabassum - Professor</option>
+                  <option value="Dr. Md. Mehedi Hasan|Associate Professor|Department of Crop Botany and Tea Production Technology">Dr. Md. Mehedi Hasan - Associate Professor</option>
+                  <option value="Ms. Sushmita Rani Saha|Associate Professor|Department of Crop Botany and Tea Production Technology">Ms. Sushmita Rani Saha - Associate Professor</option>
+                </optgroup>
+
+                <optgroup label="DEPARTMENT OF GENETICS AND PLANT BREEDING">
+                  <option value="Dr. M. Shafi Ullah Bhuiyan|Professor|Department of Genetics and Plant Breeding">Dr. M. Shafi Ullah Bhuiyan - Professor</option>
+                  <option value="Dr. Delara Akhter|Professor|Department of Genetics and Plant Breeding">Dr. Delara Akhter - Professor</option>
+                  <option value="Dr. Fakhrul Islam Monshi|Professor|Department of Genetics and Plant Breeding">Dr. Fakhrul Islam Monshi - Professor</option>
+                  <option value="Dr. Sayeda Sultana|Professor|Department of Genetics and Plant Breeding">Dr. Sayeda Sultana - Professor</option>
+                  <option value="Mr. Kishore Kumar Sarker|Associate Professor|Department of Genetics and Plant Breeding">Mr. Kishore Kumar Sarker - Associate Professor</option>
+                  <option value="Mst. Maiful Akter Dina|Assistant Professor|Department of Genetics and Plant Breeding">Mst. Maiful Akter Dina - Assistant Professor</option>
+                  <option value="Marjia Akhter Monika|Assistant Professor|Department of Genetics and Plant Breeding">Marjia Akhter Monika - Assistant Professor</option>
+                </optgroup>
+
+                <optgroup label="DEPARTMENT OF HORTICULTURE">
+                  <option value="Dr. Md. Shahidul Islam|Professor|Department of Horticulture">Dr. Md. Shahidul Islam - Professor</option>
+                  <option value="Dr. Animesh Chandra Das|Professor|Department of Horticulture">Dr. Animesh Chandra Das - Professor</option>
+                  <option value="Dr. Biswojit Debnath|Professor|Department of Horticulture">Dr. Biswojit Debnath - Professor</option>
+                  <option value="Dr. Jannatul Ferdousi|Professor|Department of Horticulture">Dr. Jannatul Ferdousi - Professor</option>
+                  <option value="Mr. Dwipok Deb Nath|Associate Professor|Department of Horticulture">Mr. Dwipok Deb Nath - Associate Professor</option>
+                  <option value="Manna Salwa|Assistant Professor (Study Leave)|Department of Horticulture">Manna Salwa - Assistant Professor (Study Leave)</option>
+                  <option value="Hafaza Khandaker Tamanna|Assistant Professor|Department of Horticulture">Hafaza Khandaker Tamanna - Assistant Professor</option>
+                  <option value="Masuma Zahan Akhi|Assistant Professor|Department of Horticulture">Masuma Zahan Akhi - Assistant Professor</option>
+                  <option value="Mst. Fatema Tuz-Zahura|Lecturer|Department of Horticulture">Mst. Fatema Tuz-Zahura - Lecturer</option>
+                </optgroup>
+
+                <optgroup label="DEPARTMENT OF PLANT PATHOLOGY AND SEED SCIENCE">
+                  <option value="Dr. Md. Asad-ud-doullah|Professor|Department of Plant Pathology and Seed Science">Dr. Md. Asad-ud-doullah - Professor</option>
+                  <option value="Dr. Abdul Muqit|Professor|Department of Plant Pathology and Seed Science">Dr. Abdul Muqit - Professor</option>
+                  <option value="Dr. Md. Monirul Islam|Professor|Department of Plant Pathology and Seed Science">Dr. Md. Monirul Islam - Professor</option>
+                  <option value="Dr. Rakibul Hasan|Associate Professor|Department of Plant Pathology and Seed Science">Dr. Rakibul Hasan - Associate Professor</option>
+                  <option value="Israt Jahan Ema|Assistant Professor|Department of Plant Pathology and Seed Science">Israt Jahan Ema - Assistant Professor</option>
+                </optgroup>
+
+                <optgroup label="DEPARTMENT OF ENTOMOLOGY">
+                  <option value="Dr. Md. Abdul Maleque|Professor|Department of Entomology">Dr. Md. Abdul Maleque - Professor</option>
+                  <option value="Dr. Chandra Kanta Dash|Professor|Department of Entomology">Dr. Chandra Kanta Dash - Professor</option>
+                  <option value="Dr. Md. Abdur Razzak Choudhury|Professor|Department of Entomology">Dr. Md. Abdur Razzak Choudhury - Professor</option>
+                  <option value="Dr. Md. Fuad Mondal|Professor|Department of Entomology">Dr. Md. Fuad Mondal - Professor</option>
+                  <option value="Dr. Kamrul Hassan|Professor|Department of Entomology">Dr. Kamrul Hassan - Professor</option>
+                  <option value="Ms. Zinat Jahan Chowdhury|Associate Professor|Department of Entomology">Ms. Zinat Jahan Chowdhury - Associate Professor</option>
+                  <option value="Mr. Jaher Ahmed|Assistant Professor|Department of Entomology">Mr. Jaher Ahmed - Assistant Professor</option>
+                  <option value="Ummey Honey Shiuly Khan|Assistant Professor|Department of Entomology">Ummey Honey Shiuly Khan - Assistant Professor</option>
+                  <option value="Mohon Nandi|Assistant Professor|Department of Entomology">Mohon Nandi - Assistant Professor</option>
+                </optgroup>
+
+                <optgroup label="DEPARTMENT OF AGRICULTURAL EXTENSION EDUCATION">
+                  <option value="Dr. Md. Ruhul Amin|Professor|Department of Agricultural Extension Education">Dr. Md. Ruhul Amin - Professor</option>
+                  <option value="Dr. Mohammad Ashraful Islam|Professor|Department of Agricultural Extension Education">Dr. Mohammad Ashraful Islam - Professor</option>
+                  <option value="Dr. Aysha Akter|Associate Professor|Department of Agricultural Extension Education">Dr. Aysha Akter - Associate Professor</option>
+                  <option value="Dr. Md. Rokonuzzaman|Associate Professor|Department of Agricultural Extension Education">Dr. Md. Rokonuzzaman - Associate Professor</option>
+                  <option value="Mr. Md. Kamruzzaman (R.P.)|Assistant Professor|Department of Agricultural Extension Education">Mr. Md. Kamruzzaman (R.P.) - Assistant Professor</option>
+                  <option value="Fahmida Husain Choudhury|Assistant Professor|Department of Agricultural Extension Education">Fahmida Husain Choudhury - Assistant Professor</option>
+                  <option value="Smita Dash Baishakhy|Assistant Professor|Department of Agricultural Extension Education">Smita Dash Baishakhy - Assistant Professor</option>
+                </optgroup>
+
+                <optgroup label="DEPARTMENT OF AGROFORESTRY AND ENVIRONMENTAL SCIENCE">
+                  <option value="Dr. Md. Sharaf Uddin|Professor|Department of Agroforestry and Environmental Science">Dr. Md. Sharaf Uddin - Professor</option>
+                  <option value="Dr. Mohammad Samiul Ahsan Talucder|Professor|Department of Agroforestry and Environmental Science">Dr. Mohammad Samiul Ahsan Talucder - Professor</option>
+                  <option value="Dr. Md. Omar Sharif|Professor|Department of Agroforestry and Environmental Science">Dr. Md. Omar Sharif - Professor</option>
+                  <option value="Dr. Ashim Sikdar|Professor|Department of Agroforestry and Environmental Science">Dr. Ashim Sikdar - Professor</option>
+                  <option value="Dr. Rana Roy|Professor|Department of Agroforestry and Environmental Science">Dr. Rana Roy - Professor</option>
+                  <option value="Dr. Tahmina Afroz|Professor|Department of Agroforestry and Environmental Science">Dr. Tahmina Afroz - Professor</option>
+                  <option value="Mitali Das|Assistant Professor|Department of Agroforestry and Environmental Science">Mitali Das - Assistant Professor</option>
+                </optgroup>
+
+                <optgroup label="DEPARTMENT OF AGRICULTURAL CHEMISTRY">
+                  <option value="Dr. Md. Kamrul Hasan|Professor|Department of Agricultural Chemistry">Dr. Md. Kamrul Hasan - Professor</option>
+                  <option value="Mrs. Munmun Saha|Associate Professor|Department of Agricultural Chemistry">Mrs. Munmun Saha - Associate Professor</option>
+                  <option value="Mr. Imtiaz Miah|Assistant Professor|Department of Agricultural Chemistry">Mr. Imtiaz Miah - Assistant Professor</option>
+                  <option value="Kamrun Nahar Mousomi|Assistant Professor|Department of Agricultural Chemistry">Kamrun Nahar Mousomi - Assistant Professor</option>
+                </optgroup>
+
+                <optgroup label="DEPARTMENT OF BASIC SCIENCE AND LANGUAGE">
+                  <option value="Dr. Snehangshu Shekhar Chanda|Professor|Department of Basic Science and Language">Dr. Snehangshu Shekhar Chanda - Professor</option>
+                  <option value="Mrs. Noor-a-Jannath Tania|Associate Professor|Department of Basic Science and Language">Mrs. Noor-a-Jannath Tania - Associate Professor</option>
+                  <option value="Rahul Bhattacharya|Associate Professor|Department of Basic Science and Language">Rahul Bhattacharya - Associate Professor</option>
+                </optgroup>
+              </select>
+            </div>
+
             <div class="field-group">
               <label for="teacherName">Course Teacher Name</label>
               <input id="teacherName" type="text" placeholder="e.g. Dr. Nazrul Islam">
             </div>
+
             <div class="field-group">
               <label for="teacherDesignation">Designation</label>
               <select id="teacherDesignation">
                 <option value="" selected>Select designation</option>
                 <option>Professor</option>
-                <option>Asst. Professor</option>
-                <option>Assoc. Professor</option>
+                <option>Associate Professor</option>
+                <option>Assistant Professor</option>
                 <option>Lecturer</option>
               </select>
             </div>
+
             <div class="field-group">
               <label for="department">Department</label>
               <input id="department" type="text" placeholder="e.g. Department of Agronomy and Haor Agriculture">
             </div>
+
             <div class="field-group">
               <label for="teacherUniversity">University</label>
               <input id="teacherUniversity" type="text" placeholder="e.g. Sylhet Agricultural University, Sylhet">
