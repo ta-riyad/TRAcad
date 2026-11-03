@@ -442,6 +442,29 @@ footer {
 .cover.sau .row-text { display: flex; gap: 8px; margin-bottom: 5px; }
 .cover.sau .row-text .lbl { font-weight: 600; color: #333; }
 
+
+/* পুরো ফর্ম গ্রুপের নিচের গ্যাপ কমানোর জন্য */
+.field-group {
+  margin-bottom: 12px; /* আপনার পছন্দমতো ১০-১২ পিক্সেল রাখতে পারেন */
+}
+
+/* লেবেল এবং ইনপুটের মধ্যকার গ্যাপ ও সাইজ */
+.field-group label {
+  display: block;
+  margin-bottom: 4px; /* লেবেল ও ইনপুটের মাঝের দূরত্ব কম রাখবে */
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ইনপুট ও সিলেক্ট বক্সের প্যাডিং ও হাইট সমান রাখা */
+.field-group input,
+.field-group select {
+  width: 100%;
+  padding: 8px 12px;
+  box-sizing: border-box;
+}
+
+
 /* Footer brand */
 .cover.sau .sau-footer-brand {
   width: 100%; padding: 12px; text-align: center; border: 3px double #000;
