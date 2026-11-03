@@ -5,7 +5,7 @@
  * ==========================================
  */
 
-console.log("TRAcad script.js v9 loaded");
+console.log("TRAcad script.js v10 loaded");
 
 /* 1. UTILITIES */
 const $ = (id) => document.getElementById(id);
@@ -52,21 +52,21 @@ const THEME_KEY = "tracad_theme_preference";
 const OLD_FORM_KEY = "sau_assignment_cover_data";
 try { localStorage.removeItem(OLD_FORM_KEY); } catch (e) {}
 
-/* 3. THEME TOGGLE LOGIC */
+/* 3. THEME TOGGLE LOGIC (DEFAULT = LIGHT THEME) */
 function initTheme() {
   const toggleBtn = $("themeToggleBtn");
   const themeIcon = $("themeIcon");
   const themeLabel = $("themeLabel");
 
-  const savedTheme = localStorage.getItem(THEME_KEY) || "dark";
-  if (savedTheme === "light") {
-    document.body.classList.add("light-theme");
-    if (themeIcon) themeIcon.textContent = "🌙";
-    if (themeLabel) themeLabel.textContent = "Dark";
-  } else {
+  const savedTheme = localStorage.getItem(THEME_KEY) || "light";
+  if (savedTheme === "dark") {
     document.body.classList.remove("light-theme");
     if (themeIcon) themeIcon.textContent = "☀️";
     if (themeLabel) themeLabel.textContent = "Light";
+  } else {
+    document.body.classList.add("light-theme");
+    if (themeIcon) themeIcon.textContent = "🌙";
+    if (themeLabel) themeLabel.textContent = "Dark";
   }
 
   if (toggleBtn) {
