@@ -1,13 +1,23 @@
-/**
- * ==========================================
- * TRACAD ASSIGNMENT COVER STUDIO
- * Direct A4 PDF download + theme toggle + counter
- * ==========================================
- */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-console.log("TRAcad script.js v10 loaded");
+/* ===== 1. FIREBASE CONFIGURATION ===== */
+// TODO: Replace with your actual Firebase Console Credentials
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
 
-/* 1. UTILITIES */
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ===== 2. UTILITIES ===== */
 const $ = (id) => document.getElementById(id);
 
 function getValue(id) {
@@ -23,7 +33,7 @@ function setText(id, value) {
   if (el) el.textContent = value;
 }
 
-/* 2. CONFIGURATION & DEFAULTS */
+/* ===== 3. CONFIGURATION & DEFAULTS ===== */
 const defaults = {
   documentType: "Assignment",
   institution: "",
@@ -49,10 +59,8 @@ const fields = Object.keys(defaults);
 
 const FORM_KEY = "tracad_cover_form_v2";
 const THEME_KEY = "tracad_theme_preference";
-const OLD_FORM_KEY = "sau_assignment_cover_data";
-try { localStorage.removeItem(OLD_FORM_KEY); } catch (e) {}
 
-/* 3. THEME TOGGLE LOGIC (DEFAULT = LIGHT THEME) */
+/* ===== 4. THEME TOGGLE LOGIC ===== */
 function initTheme() {
   const toggleBtn = $("themeToggleBtn");
   const themeIcon = $("themeIcon");
@@ -80,28 +88,7 @@ function initTheme() {
   }
 }
 
-/* 4. INSTITUTION BINDING */
-function autoBindInstitution() {
-  const cover = $("cover");
-  if (!cover) return;
-
-  const walker = document.createTreeWalker(cover, NodeFilter.SHOW_TEXT);
-  const hits = [];
-  while (walker.nextNode()) {
-    const node = walker.currentNode;
-    if (/sylhet/i.test(node.nodeValue) && !node.parentElement.closest("[data-institution], #docFooterBrand")) {
-      hits.push(node);
-    }
-  }
-  hits.forEach((node) => {
-    const span = document.createElement("span");
-    span.setAttribute("data-institution", "");
-    span.textContent = node.nodeValue;
-    node.parentNode.replaceChild(span, node);
-  });
-}
-
-/* 5. CORE LOGIC - Update, Load, Save */
+/* ===== 5. CORE LOGIC - Update & Local Storage ===== */
 function updatePreview() {
   const institution = getValue("institution");
   const department = getValue("department");
@@ -137,24 +124,12 @@ function updatePreview() {
   setText("docFooterBrand", instText.toUpperCase());
 }
 
-function loadDefaults() {
-  fields.forEach((id) => {
-    const el = $(id);
-    if (!el) return;
-    el.value = defaults[id];
-    if (el.tagName === "SELECT" && el.selectedIndex === -1) el.selectedIndex = 0;
-  });
-  updatePreview();
-}
-
 function saveLocal() {
   try {
     const data = {};
     fields.forEach((id) => (data[id] = getValue(id)));
     localStorage.setItem(FORM_KEY, JSON.stringify(data));
-  } catch (e) {
-    /* storage unavailable - ignore */
-  }
+  } catch (e) {}
 }
 
 function loadLocal() {
@@ -170,354 +145,101 @@ function loadLocal() {
   }
 }
 
-function restoreLogo() {
-  try {
-    const logo = localStorage.getItem("sau_custom_logo");
-    if (logo) {
-      $("previewLogo").src = logo;
-      $("watermarkLogo").src = logo;
-      $("logoLabel").textContent = "Custom Logo Loaded";
-    }
-  } catch (e) {
-    /* ignore */
-  }
-}
+/* ===== 6. FIREBASE AUTH & AUTO-FILL SYSTEM ===== */
+function autoFillStudentData(userData) {
+  if (!userData) return;
+  if ($("studentName")) $("studentName").value = userData.studentName || "";
+  if ($("studentId")) $("studentId").value = userData.studentId || "";
+  if ($("reg")) $("reg").value = userData.reg || "";
+  if ($("level")) $("level").value = userData.level || "";
+  if ($("semester")) $("semester").value = userData.semester || "";
+  if ($("group")) $("group").value = userData.group || "";
+  if ($("session")) $("session").value = userData.session || "";
 
-/* 6. DOWNLOAD COUNTER */
-const COUNTER_API = "https://tahrim.pythonanywhere.com";
-const COUNT_CACHE_KEY = "tracad_last_count";
-
-function counterEnabled() {
-  return !COUNTER_API.includes("YOUR-BACKEND-URL");
-}
-
-function readTotal(data) {
-  const n = Number(data && (data.total ?? data.count ?? data.downloads));
-  return Number.isFinite(n) ? n : NaN;
-}
-
-function paintCount(total) {
-  const text = Number(total).toLocaleString();
-  document.querySelectorAll(".js-download-count, #downloadCount").forEach((el) => {
-    el.textContent = text;
-  });
-}
-
-function showCount(total) {
-  if (!Number.isFinite(total)) return;
-  paintCount(total);
-  try { localStorage.setItem(COUNT_CACHE_KEY, String(total)); } catch (e) {}
-}
-
-function showCachedCount() {
-  try {
-    const raw = localStorage.getItem(COUNT_CACHE_KEY);
-    if (raw !== null && Number.isFinite(Number(raw))) paintCount(Number(raw));
-  } catch (e) {}
-}
-
-async function loadDownloadCount() {
-  if (!counterEnabled()) return;
-  showCachedCount();
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const res = await fetch(`${COUNTER_API}/api/downloads`, { cache: "no-store" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      const total = readTotal(await res.json());
-      if (!Number.isFinite(total)) throw new Error("Response has no total/count field");
-      showCount(total);
-      return;
-    } catch (e) {
-      console.warn("Counter load failed:", e);
-      await new Promise((r) => setTimeout(r, 1500));
-    }
-  }
-}
-
-async function recordDownload() {
-  if (!counterEnabled()) return;
-  try {
-    const res = await fetch(`${COUNTER_API}/api/downloads`, { method: "POST" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    showCount(readTotal(await res.json()));
-  } catch (e) {
-    console.warn("Counter update failed:", e);
-  }
-}
-
-/* 7. PDF PIPELINE */
-const originalTitle = document.title;
-let isExporting = false;
-
-const A4_W_PX = 794;   // 210mm @ 96dpi
-const A4_H_PX = 1123;  // 297mm @ 96dpi
-
-function fitPreview() {
-  const stage = $("previewStage");
-  if (!stage) return;
-  const cs = getComputedStyle(stage);
-  const avail = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-  if (avail <= 0) return;
-  const scale = Math.max(0.2, Math.min(1, avail / A4_W_PX));
-  stage.style.setProperty("--fit", scale.toFixed(3));
-}
-
-function buildPdfName() {
-  const code = getValue("courseCode");
-  const name = `${code ? code + " " : ""}Assign C By TRAcad`;
-  return name.replace(/[\\/:*?"<>|]+/g, "").replace(/\s+/g, " ").trim();
-}
-
-function waitForAssets(root) {
-  const tasks = [];
-  if (document.fonts && document.fonts.ready) tasks.push(document.fonts.ready);
-  root.querySelectorAll("img").forEach((img) => {
-    if (!img.complete) {
-      tasks.push(
-        new Promise((resolve) => {
-          img.addEventListener("load", resolve, { once: true });
-          img.addEventListener("error", resolve, { once: true });
-        })
-      );
-    }
-  });
-  const timeout = new Promise((resolve) => setTimeout(resolve, 3000));
-  return Promise.race([Promise.all(tasks), timeout]);
-}
-
-function makeExportClone() {
-  const stage = document.createElement("div");
-  stage.style.cssText =
-    `position:absolute;left:-10000px;top:0;width:${A4_W_PX}px;height:${A4_H_PX}px;` +
-    `overflow:hidden;background:#fff;pointer-events:none;`;
-
-  const clone = $("cover").cloneNode(true);
-  clone.removeAttribute("id");
-  clone.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
-  clone.style.cssText = `width:${A4_W_PX}px;height:${A4_H_PX}px;margin:0;transform:none;`;
-
-  stage.appendChild(clone);
-  document.body.appendChild(stage);
-  return { stage, clone };
-}
-
-async function downloadPdf() {
-  if (isExporting) return;
-  isExporting = true;
-
-  const btn = $("downloadBtn");
-  const originalHtml = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = "Generating PDF…";
-
-  let stage = null;
-  try {
-    if (!window.html2canvas || !window.jspdf) {
-      throw new Error("PDF libraries not loaded");
-    }
-
-    updatePreview();
-    const made = makeExportClone();
-    stage = made.stage;
-    await waitForAssets(stage);
-
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 900;
-
-    const canvas = await window.html2canvas(made.clone, {
-      scale: isMobile ? 3 : 4,
-      width: A4_W_PX,
-      height: A4_H_PX,
-      windowWidth: A4_W_PX,
-      windowHeight: A4_H_PX,
-      scrollX: 0,
-      scrollY: 0,
-      backgroundColor: "#ffffff",
-      useCORS: true,
-      logging: false
-    });
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
-    pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 210, 297, undefined, "FAST");
-
-    const pdfName = buildPdfName();
-    pdf.setProperties({ title: pdfName });
-    const blobUrl = URL.createObjectURL(pdf.output("blob"));
-    const link = document.createElement("a");
-    link.href = blobUrl;
-    link.download = pdfName + ".pdf";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
-
-    recordDownload();
-  } catch (error) {
-    console.error("PDF download error:", error);
-    alert("Direct download failed. Opening print dialog instead - choose 'Save as PDF' and paper size A4.");
-    window.print();
-  } finally {
-    if (stage) stage.remove();
-    btn.disabled = false;
-    btn.innerHTML = originalHtml;
-    isExporting = false;
-  }
-}
-
-async function printCover() {
   updatePreview();
-  await waitForAssets(document);
-  document.title = buildPdfName();
-  window.print();
-  document.title = originalTitle;
+  saveLocal();
 }
 
-/* 8. EVENT LISTENERS */
-function bindEvents() {
-  const onFieldEvent = (e) => {
-    const t = e.target;
-    if (t && t.id && fields.includes(t.id)) {
-      updatePreview();
-      saveLocal();
+async function fetchStudentProfile(user) {
+  try {
+    // Search in Firestore by User Email or UID
+    const docRef = doc(db, "students", user.email);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      autoFillStudentData(docSnap.data());
+    } else {
+      console.warn("No student profile record found in database.");
     }
-  };
-  document.addEventListener("input", onFieldEvent);
-  document.addEventListener("change", onFieldEvent);
-
-  // Auto-fill Course Selection Handler
-  const courseSelect = $("courseSelect");
-  if (courseSelect) {
-    courseSelect.addEventListener("change", (e) => {
-      const val = e.target.value;
-      if (!val) return;
-
-      if (val === "manual") {
-        if ($("courseName")) $("courseName").value = "";
-        if ($("courseCode")) $("courseCode").value = "";
-        updatePreview();
-        saveLocal();
-        return;
-      }
-
-      const [name, code] = val.split("|");
-      if ($("courseName")) $("courseName").value = name || "";
-      if ($("courseCode")) $("courseCode").value = code || "";
-      
-      updatePreview();
-      saveLocal();
-    });
+  } catch (err) {
+    console.error("Error fetching student profile:", err);
   }
+}
 
-  // Auto-fill Teacher selection handler (automatically sets SAU university info)
-  const teacherSelect = $("teacherSelect");
-  if (teacherSelect) {
-    teacherSelect.addEventListener("change", (e) => {
-      const val = e.target.value;
-      if (!val) return;
+function initAuth() {
+  const modal = $("loginModal");
+  const authBtn = $("authBtn");
+  const closeModalBtn = $("closeModalBtn");
+  const loginForm = $("loginForm");
+  const googleBtn = $("googleAuthBtn");
 
-      if (val === "manual") {
-        $("teacherName").value = "";
-        $("teacherDesignation").value = "";
-        $("department").value = "";
-        $("teacherUniversity").value = "";
-        $("institution").value = "";
-        updatePreview();
-        saveLocal();
-        return;
-      }
-
-      const [name, designation, dept] = val.split("|");
-      if ($("teacherName")) $("teacherName").value = name || "";
-      if ($("department")) $("department").value = dept || "";
-      
-      const sauName = "Sylhet Agricultural University, Sylhet";
-      if ($("teacherUniversity")) $("teacherUniversity").value = sauName;
-      if ($("institution")) $("institution").value = sauName;
-
-      const desgSelect = $("teacherDesignation");
-      if (desgSelect) {
-        let matched = false;
-        for (let opt of desgSelect.options) {
-          if (opt.text.toLowerCase() === designation.toLowerCase()) {
-            desgSelect.value = opt.text;
-            matched = true;
-            break;
-          }
-        }
-        if (!matched) desgSelect.value = designation;
-      }
-
-      updatePreview();
-      saveLocal();
-    });
-  }
-
-  // Logo upload
-  if ($("logoInput")) {
-    $("logoInput").addEventListener("change", (event) => {
-      const file = event.target.files[0];
-      if (!file || !file.type.startsWith("image/")) {
-        alert("Please upload a valid image file");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        $("previewLogo").src = e.target.result;
-        $("watermarkLogo").src = e.target.result;
-        $("logoLabel").textContent = file.name;
-        try {
-          localStorage.setItem("sau_custom_logo", e.target.result);
-        } catch (err) {}
-        updatePreview();
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  // Reset
-  if ($("resetBtn")) {
-    $("resetBtn").addEventListener("click", () => {
-      if (!confirm("Reset all fields to default values?")) return;
-      try {
-        localStorage.removeItem(FORM_KEY);
-        localStorage.removeItem("sau_custom_logo");
-      } catch (e) {}
-
-      if ($("logoInput")) $("logoInput").value = "";
-      $("previewLogo").src = "favicon1.png";
-      $("watermarkLogo").src = "favicon1.png";
-      $("logoLabel").textContent = "Upload High-Res Logo";
-      loadDefaults();
-    });
-  }
-
-  if ($("downloadBtn")) $("downloadBtn").addEventListener("click", downloadPdf);
-  if ($("printBtn")) $("printBtn").addEventListener("click", printCover);
-
-  window.addEventListener("afterprint", () => {
-    document.title = originalTitle;
+  authBtn.addEventListener("click", () => {
+    if (auth.currentUser) {
+      if (confirm("Do you want to log out?")) signOut(auth);
+    } else {
+      modal.classList.remove("hidden");
+    }
   });
 
-  window.addEventListener("resize", fitPreview);
-  if ("ResizeObserver" in window && $("previewStage")) {
-    new ResizeObserver(fitPreview).observe($("previewStage"));
-  }
+  closeModalBtn.addEventListener("click", () => modal.classList.add("hidden"));
+
+  // Email & Password Auth
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = $("loginEmail").value.trim();
+    const password = $("loginPassword").value;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      modal.classList.add("hidden");
+    } catch (err) {
+      alert("Login failed: " + err.message);
+    }
+  });
+
+  // Google Provider Auth
+  googleBtn.addEventListener("click", async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      modal.classList.add("hidden");
+    } catch (err) {
+      alert("Google Sign-In failed: " + err.message);
+    }
+  });
+
+  // Auth State Listener
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      setText("authLabel", user.displayName || user.email.split("@")[0]);
+      setText("authIcon", "👤");
+      fetchStudentProfile(user);
+    } else {
+      setText("authLabel", "Student Login");
+      setText("authIcon", "🔑");
+    }
+  });
 }
 
-/* 9. INITIALIZATION */
+/* ===== 7. INITIALIZATION ===== */
 function init() {
   initTheme();
-  autoBindInstitution();
-  bindEvents();
+  initAuth();
   if (!loadLocal()) {
-    loadDefaults();
+    updatePreview();
   } else {
     updatePreview();
   }
-  restoreLogo();
-  fitPreview();
-  loadDownloadCount();
-  console.log("✓ TRAcad Assignment Cover Studio initialized");
 }
 
 if (document.readyState === "loading") {
