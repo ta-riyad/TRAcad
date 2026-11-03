@@ -1,11 +1,11 @@
 /**
  * ==========================================
  * TRACAD ASSIGNMENT COVER STUDIO
- * Direct A4 PDF download + download counter
+ * Direct A4 PDF download + theme toggle + counter
  * ==========================================
  */
 
-console.log("TRAcad script.js v6 loaded");
+console.log("TRAcad script.js v8 loaded");
 
 /* 1. UTILITIES */
 const $ = (id) => document.getElementById(id);
@@ -47,10 +47,39 @@ const defaults = {
 const fields = Object.keys(defaults);
 
 const FORM_KEY = "tracad_cover_form_v2";
+const THEME_KEY = "tracad_theme_preference";
 const OLD_FORM_KEY = "sau_assignment_cover_data";
 try { localStorage.removeItem(OLD_FORM_KEY); } catch (e) {}
 
-/* 3. INSTITUTION BINDING */
+/* 3. THEME TOGGLE LOGIC */
+function initTheme() {
+  const toggleBtn = $("themeToggleBtn");
+  const themeIcon = $("themeIcon");
+  const themeLabel = $("themeLabel");
+
+  const savedTheme = localStorage.getItem(THEME_KEY) || "dark";
+  if (savedTheme === "light") {
+    document.body.classList.add("light-theme");
+    if (themeIcon) themeIcon.textContent = "🌙";
+    if (themeLabel) themeLabel.textContent = "Dark";
+  } else {
+    document.body.classList.remove("light-theme");
+    if (themeIcon) themeIcon.textContent = "☀️";
+    if (themeLabel) themeLabel.textContent = "Light";
+  }
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("light-theme");
+      const isLight = document.body.classList.contains("light-theme");
+      localStorage.setItem(THEME_KEY, isLight ? "light" : "dark");
+      if (themeIcon) themeIcon.textContent = isLight ? "🌙" : "☀️";
+      if (themeLabel) themeLabel.textContent = isLight ? "Dark" : "Light";
+    });
+  }
+}
+
+/* 4. INSTITUTION BINDING */
 function autoBindInstitution() {
   const cover = $("cover");
   if (!cover) return;
@@ -71,7 +100,7 @@ function autoBindInstitution() {
   });
 }
 
-/* 4. CORE LOGIC - Update, Load, Save */
+/* 5. CORE LOGIC - Update, Load, Save */
 function updatePreview() {
   const institution = getValue("institution");
   const department = getValue("department");
@@ -153,7 +182,7 @@ function restoreLogo() {
   }
 }
 
-/* 5. DOWNLOAD COUNTER */
+/* 6. DOWNLOAD COUNTER */
 const COUNTER_API = "https://tahrim.pythonanywhere.com";
 const COUNT_CACHE_KEY = "tracad_last_count";
 
@@ -215,7 +244,7 @@ async function recordDownload() {
   }
 }
 
-/* 6. PDF PIPELINE */
+/* 7. PDF PIPELINE */
 const originalTitle = document.title;
 let isExporting = false;
 
@@ -342,7 +371,7 @@ async function printCover() {
   document.title = originalTitle;
 }
 
-/* 7. EVENT LISTENERS */
+/* 8. EVENT LISTENERS */
 function bindEvents() {
   const onFieldEvent = (e) => {
     const t = e.target;
@@ -354,7 +383,6 @@ function bindEvents() {
   document.addEventListener("input", onFieldEvent);
   document.addEventListener("change", onFieldEvent);
 
-  // Auto-fill Teacher selection handler
   const teacherSelect = $("teacherSelect");
   if (teacherSelect) {
     teacherSelect.addEventListener("change", (e) => {
@@ -365,6 +393,8 @@ function bindEvents() {
         $("teacherName").value = "";
         $("teacherDesignation").value = "";
         $("department").value = "";
+        $("teacherUniversity").value = "";
+        $("institution").value = "";
         updatePreview();
         saveLocal();
         return;
@@ -373,6 +403,10 @@ function bindEvents() {
       const [name, designation, dept] = val.split("|");
       if ($("teacherName")) $("teacherName").value = name || "";
       if ($("department")) $("department").value = dept || "";
+      
+      const sauName = "Sylhet Agricultural University, Sylhet";
+      if ($("teacherUniversity")) $("teacherUniversity").value = sauName;
+      if ($("institution")) $("institution").value = sauName;
 
       const desgSelect = $("teacherDesignation");
       if (desgSelect) {
@@ -392,7 +426,6 @@ function bindEvents() {
     });
   }
 
-  // Logo upload
   if ($("logoInput")) {
     $("logoInput").addEventListener("change", (event) => {
       const file = event.target.files[0];
@@ -414,7 +447,6 @@ function bindEvents() {
     });
   }
 
-  // Reset
   if ($("resetBtn")) {
     $("resetBtn").addEventListener("click", () => {
       if (!confirm("Reset all fields to default values?")) return;
@@ -444,8 +476,9 @@ function bindEvents() {
   }
 }
 
-/* 8. INITIALIZATION */
+/* 9. INITIALIZATION */
 function init() {
+  initTheme();
   autoBindInstitution();
   bindEvents();
   if (!loadLocal()) {
